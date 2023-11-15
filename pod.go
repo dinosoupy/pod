@@ -5,14 +5,13 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"time"
 
 	kafka "github.com/segmentio/kafka-go"
 	"gopkg.in/yaml.v3"
 )
 
 type Datasource interface {
-	Fetch(d time.Duration) ([]byte, error)
+	Fetch() ([]byte, error)
 }
 
 type Preprocessor struct {
@@ -73,16 +72,12 @@ type KafkaReader struct {
 	reader *kafka.Reader
 }
 
-func (k KafkaReader) Fetch(d time.Duration) ([]byte, error) {
-	for {
-		m, err := k.reader.ReadMessage(context.Background())
-		if err != nil {
-			return nil, fmt.Errorf("error: while fetching from kafka topic\n%v", err)
-		}
-		fmt.Printf("message at topic:%v partition:%v offset:%v	%s = %s\n", m.Topic, m.Partition, m.Offset, string(m.Key), string(m.Value))
-
-		time.Sleep(d)
+func (k KafkaReader) Fetch() ([]byte, error) {
+	m, err := k.reader.ReadMessage(context.Background())
+	if err != nil {
+		return nil, fmt.Errorf("error: while fetching from kafka topic\n%v", err)
 	}
+	return m.Value, nil
 }
 
 // New initializes a Pod using the given config filename
