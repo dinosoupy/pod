@@ -1,2 +1,2 @@
 # pod
-Package pod provides spice.ai pod implementation
+Package pod provides a pod implementation
